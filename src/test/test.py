@@ -54,7 +54,7 @@ def get_unique_numbers(driver):
 
 def write_to_file(content):
     file_name = "-".join(str(datetime.now()).split(" "))
-    file = open(f'changes-made/{file_name}.txt', 'w')
+    file = open(f'../../changes-made/{file_name}-test.txt', 'w')
     file.write(content)
     print("Modifications written to file")
     file.close()
