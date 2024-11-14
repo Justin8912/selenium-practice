@@ -25,17 +25,27 @@ def interactWithTestEnv():
     # flowchart = driver.find_elements(By.CSS_SELECTOR, "tr")
     flowchart = get_unique_numbers(driver)
 
-    print(flowchart)
-    for row_element in flowchart: 
+    numberOfElements = len(flowchart)
+    elementIdx = 0
+
+    '''
+    Previously I was running a for loop over the elements that I had in this flowChart list 
+    but when I did that I kept getting the staleElementError. I am not 100% sure why this was 
+    happening, becuase even though I was running the for loop I was refreshing the flowchart 
+    elements after each iteration.  
+    '''
+    while (numberOfElements != elementIdx):
         valid = True
-        cell = row_element.find_elements(By.TAG_NAME, 'td')
+        cell = flowchart[elementIdx].find_elements(By.TAG_NAME, 'td')
         for time in excluded_times:
-            if (time in row_element.text):
+            if (time in cell[0].text):
                 print(f'Exclude this unique number: {cell[0].text}')
-                valid=False
-                continue
-        if ("Section" in row_element.text):
+                valid = False
+                elementIdx += 1
+                break
+        if ("Section" in cell[0].text):
             valid = False
+            elementIdx += 1
         if valid:
             print("Perform operations on this unique number: " + cell[0].text)
             cell[0].click()
@@ -45,14 +55,12 @@ def interactWithTestEnv():
             textInput.clear()
             textInput.send_keys(6)
             submitButton.click()
+            elementIdx += 1
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "tr")))
-            sleep(10)
+            sleep(3)
             flowchart = get_unique_numbers(driver)
 
-    
-    # flowchart.click()
-    input("")
     driver.quit()
 
 def interactWithGoogle():
@@ -64,13 +72,10 @@ def interactWithGoogle():
     searchBar.send_keys("canvas ut")
     searchBar = driver.find_element(by=By.CSS_SELECTOR, value="textarea")
     searchBar.send_keys(Keys.RETURN)
-    # searchBar = driver.find_element(by=By.CSS_SELECTOR, value="textarea")
-    # searchBar.click()
-    
+    searchBar = driver.find_element(by=By.CSS_SELECTOR, value="textarea")
+    searchBar.click()
 
-
-    
-    # driver.quit()
+    driver.quit()
 
 def main():
     interactWithTestEnv()
