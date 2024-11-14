@@ -13,7 +13,7 @@ jobs:
     runs-on: "macos-latest"
     defaults:
       run:
-        working-directory: "./changes-made"
+        working-directory: "./my-app"
     steps:
 #      - name: test
 #        shell: bash
