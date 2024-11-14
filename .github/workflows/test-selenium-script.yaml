@@ -1,0 +1,39 @@
+name: Test Selenium Script
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - adding-test-selenium-workflow
+
+jobs:
+  test-script:
+    name: Test Script
+    runs-on: ""
+    steps:
+      - name: Download repo
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Setup python
+        uses: actions/setup-python
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install python dependency
+        shell: bash
+        run: |
+          pip install selenium 
+
+      - name: navigate to and install npm deps
+        shell: bash
+        run: |
+          cd my-app 
+          npm i 
