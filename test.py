@@ -6,9 +6,35 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
 
+# Setting variables for use
+seat_number = ""
+
 excluded_times = [
-    "10:30am - 4:30am",
+    # "10:30am - 4:30am",
 ]
+
+excluded_sections = [
+    # "41365"
+]
+
+# Asking for user input if those variables dont exist
+if seat_number == "":
+    msg = "What is the desired number of seats: "
+    seat_number = input(msg)
+    while seat_number == "":
+        print("Seat number cannot be set to nothing. Please try entering a valid number")
+        seat_number = input(msg)
+if not excluded_times:
+    msg = "Please list out the times of sections that should be excluded (separated by comma): "
+    excluded_times = list(map(lambda x: x.strip() if x != '' else None, input(msg).split(",")))
+    excluded_times = [x for x in excluded_times if x is not None]
+    print(f'Here are the excluded times {excluded_times}')
+if not excluded_sections:
+    msg = "If there are any, list out any unique numbers you'd like to exclude (separated by comma): "
+    excluded_sections = list(map(lambda x: x.strip() if x != '' else None, input(msg).split(",")))
+    excluded_sections = [x for x in excluded_sections if x is not None]
+    print(f'Here are the excluded sections {excluded_sections}')
+
 
 def get_unique_numbers(driver):
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
@@ -16,69 +42,77 @@ def get_unique_numbers(driver):
     rows = driver.find_elements(By.TAG_NAME, "tr")
     return rows
 
-def interactWithTestEnv():
-    link = "http://localhost:3000"
-    driver = webdriver.Chrome()
-    driver.get(link)
-    driver.get_log('browser')
 
-    # flowchart = driver.find_elements(By.CSS_SELECTOR, "tr")
+def interact_with_test_env():
+    link = "http://localhost:3000"
+
+    print("Initializing web driver")
+    driver = webdriver.Chrome()
+    print("Web driver initialized, opening chrome")
+    driver.get(link)
+
     flowchart = get_unique_numbers(driver)
 
-    numberOfElements = len(flowchart)
-    elementIdx = 0
+    number_of_elements = len(flowchart)
+    element_idx = 0
+
+    modifications = 'Here are all the unique numbers iterated on:'
 
     '''
     Previously I was running a for loop over the elements that I had in this flowChart list 
     but when I did that I kept getting the staleElementError. I am not 100% sure why this was 
-    happening, becuase even though I was running the for loop I was refreshing the flowchart 
+    happening, because even though I was running the for loop I was refreshing the flowchart 
     elements after each iteration.  
     '''
-    while (numberOfElements != elementIdx):
+    while number_of_elements != element_idx:
         valid = True
-        cell = flowchart[elementIdx].find_elements(By.TAG_NAME, 'td')
+        curr_row = flowchart[element_idx].find_elements(By.TAG_NAME, 'td')
+
+        curr_unique_num = curr_row[0].text
+        curr_time = curr_row[1].text
+
+        # Note that this method is currently disregarding the day and only looking at the time
         for time in excluded_times:
-            if (time in cell[0].text):
-                print(f'Exclude this unique number: {cell[0].text}')
+            if time in curr_time:
+                modifications += f'\n\t{curr_unique_num} : Excluded'
                 valid = False
-                elementIdx += 1
+                element_idx += 1
                 break
-        if ("Section" in cell[0].text):
+
+        if curr_unique_num in excluded_sections:
             valid = False
-            elementIdx += 1
+            modifications += f'\n\t{curr_unique_num} : Excluded'
+            element_idx += 1
+
+        if "Section" in curr_unique_num:
+            valid = False
+            element_idx += 1
+
         if valid:
-            print("Perform operations on this unique number: " + cell[0].text)
-            cell[0].click()
+            #  Navigate to new page
+            curr_row[0].click()
+
+            # Wait for the new page to show up, may need more time here
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "setSeatNumber")))
-            textInput = driver.find_element(By.ID, "setSeatNumber")
-            submitButton = driver.find_element(By.TAG_NAME, "button")
-            textInput.clear()
-            textInput.send_keys(6)
-            submitButton.click()
-            elementIdx += 1
+            text_input = driver.find_element(By.ID, "setSeatNumber")
+            submit_button = driver.find_element(By.TAG_NAME, "button")
+            text_input.clear()
+            text_input.send_keys(seat_number)
+            submit_button.click()
+            modifications += f'\n\t{curr_unique_num} : Modified - number of seats changed to {seat_number}'
+
+            # Move onto the next element
+            element_idx += 1
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "tr")))
-            sleep(3)
             flowchart = get_unique_numbers(driver)
 
+    print(modifications)
     driver.quit()
 
-def interactWithGoogle():
-    link = "https://www.google.com"
-    driver = webdriver.Chrome()
-    driver.get(link)
-
-    searchBar = driver.find_element(by=By.CSS_SELECTOR, value="textarea")
-    searchBar.send_keys("canvas ut")
-    searchBar = driver.find_element(by=By.CSS_SELECTOR, value="textarea")
-    searchBar.send_keys(Keys.RETURN)
-    searchBar = driver.find_element(by=By.CSS_SELECTOR, value="textarea")
-    searchBar.click()
-
-    driver.quit()
 
 def main():
-    interactWithTestEnv()
-    # interactWithGoogle()
+    interact_with_test_env()
+
 
 main()
