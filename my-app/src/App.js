@@ -1,12 +1,12 @@
 import './App.css';
 import Table from "./components/Table.jsx";
 import SizeChanger from './components/SizeChanger.jsx';
-import {useState} from 'react';
+import { useState } from 'react';
 
 function App() {
-  const [display, setDisplay] = useState(0);
+  const [ display, setDisplay ] = useState(0);
 
-  const [sections, setSections] = useState([
+  const [ sections, setSections ] = useState([
     {
       id: "41352",
       time: "M 10:30am - 4:30am",
@@ -62,8 +62,6 @@ function App() {
         />
       }
     </>
-   
-
   );
 }
 
