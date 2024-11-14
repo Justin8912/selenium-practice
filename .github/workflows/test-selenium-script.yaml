@@ -24,7 +24,6 @@ jobs:
       - name: Download repo
         uses: actions/checkout@v4
 
-
       - name: Setup node
         uses: actions/setup-node@v4
         with:
@@ -34,6 +33,7 @@ jobs:
         shell: bash
         run: |
           npm i
+          cd ../
 
       - name: Setup python
         uses: actions/setup-python@v5
