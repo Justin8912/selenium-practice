@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
+from datetime import datetime
 
 # Setting variables for use
 seat_number = ""
@@ -17,13 +18,21 @@ excluded_sections = [
     # "41365"
 ]
 
+link = "http://localhost:3000" # This will need to be updated with whatever link we need to use
+
 # Asking for user input if those variables dont exist
 if seat_number == "":
     msg = "What is the desired number of seats: "
     seat_number = input(msg)
     while seat_number == "":
-        print("Seat number cannot be set to nothing. Please try entering a valid number")
+        print("Seat number cannot be set to nothing. Please try entering a valid number.")
         seat_number = input(msg)
+if link == "":
+    msg = "Where should the bot be run? "
+    link = input(msg)
+    while link == "":
+        print("Link cannot be set to nothing. Please try entering a valid link.")
+        link = input(msg)
 if not excluded_times:
     msg = "Please list out the times of sections that should be excluded (separated by comma): "
     excluded_times = list(map(lambda x: x.strip() if x != '' else None, input(msg).split(",")))
@@ -43,9 +52,15 @@ def get_unique_numbers(driver):
     return rows
 
 
-def interact_with_test_env():
-    link = "http://localhost:3000"
+def write_to_file(content):
+    file_name = "-".join(str(datetime.now()).split(" "))
+    file = open(f'changes-made/{file_name}.txt', 'w')
+    file.write(content)
+    print("Modifications written to file")
+    file.close()
 
+
+def interact_with_test_env():
     print("Initializing web driver")
     driver = webdriver.Chrome()
     print("Web driver initialized, opening chrome")
@@ -56,7 +71,7 @@ def interact_with_test_env():
     number_of_elements = len(flowchart)
     element_idx = 0
 
-    modifications = 'Here are all the unique numbers iterated on:'
+    modifications = 'Beep Boop Boop Bop\n\nHere are all the unique numbers iterated on:'
 
     '''
     Previously I was running a for loop over the elements that I had in this flowChart list 
@@ -74,14 +89,14 @@ def interact_with_test_env():
         # Note that this method is currently disregarding the day and only looking at the time
         for time in excluded_times:
             if time in curr_time:
-                modifications += f'\n\t{curr_unique_num} : Excluded'
+                modifications += f'\n\t{curr_unique_num} : Excluded - section time {curr_time}'
                 valid = False
                 element_idx += 1
                 break
 
         if curr_unique_num in excluded_sections:
             valid = False
-            modifications += f'\n\t{curr_unique_num} : Excluded'
+            modifications += f'\n\t{curr_unique_num} : Excluded - unique number {curr_unique_num}'
             element_idx += 1
 
         if "Section" in curr_unique_num:
@@ -107,7 +122,12 @@ def interact_with_test_env():
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "tr")))
             flowchart = get_unique_numbers(driver)
 
+    modifications += f'\n\nThe bot ran with the following parameters:\
+    \n\t-> Excluded times: {excluded_times}\
+    \n\t-> Excluded sections: {excluded_sections}'
     print(modifications)
+
+    write_to_file(modifications)
     driver.quit()
 
 

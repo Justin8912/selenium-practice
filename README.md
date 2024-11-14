@@ -20,3 +20,14 @@ In order to test the selenium app, you must follow these steps:
 
 After running the test a directory should populate called `changes-made` with the time that the file was run 
 as the name of the file. This will hold all the record for everything that was changed.
+
+Running the bot
+--
+When you are running the bot you have a couple of options for excluding sections:
+
+1. Exclude by time 
+    * Be careful with this selector as it is very lax. For example if you enter 10 here any section with a 10 in the time will be excluded from the bots actions.
+2. Exclude by unique number 
+    * You can enter one or multiple unique numbers to exclude
+
+The bot runs on Chrome so you will need to have an active sessions for your application in chrome in order for this to run correctly.

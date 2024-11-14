@@ -1,0 +1,1 @@
+Placeholder - this directory must be present for the bot to save changes
