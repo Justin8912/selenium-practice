@@ -10,7 +10,7 @@ on:
 jobs:
   test-script:
     name: Test Script
-    runs-on: ""
+    runs-on: "macos-latest"
     steps:
       - name: test
         shell: bash
