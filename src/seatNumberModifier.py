@@ -1,10 +1,7 @@
-import selenium 
-from selenium import webdriver 
-from selenium.webdriver.common.keys import Keys
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from time import sleep
 from datetime import datetime
 
 # Setting variables for use
@@ -27,17 +24,20 @@ if seat_number == "":
     while seat_number == "":
         print("Seat number cannot be set to nothing. Please try entering a valid number.")
         seat_number = input(msg)
+
 if link == "":
     msg = "Where should the bot be run? "
     link = input(msg)
     while link == "":
         print("Link cannot be set to nothing. Please try entering a valid link.")
         link = input(msg)
+
 if not excluded_times:
     msg = "Please list out the times of sections that should be excluded (separated by comma): "
     excluded_times = list(map(lambda x: x.strip() if x != '' else None, input(msg).split(",")))
     excluded_times = [x for x in excluded_times if x is not None]
     print(f'Here are the excluded times {excluded_times}')
+
 if not excluded_sections:
     msg = "If there are any, list out any unique numbers you'd like to exclude (separated by comma): "
     excluded_sections = list(map(lambda x: x.strip() if x != '' else None, input(msg).split(",")))
@@ -55,7 +55,7 @@ def get_unique_numbers(driver):
 
 def write_to_file(content):
     file_name = "-".join(str(datetime.now()).split(" "))
-    file = open(f'../changes-made/{file_name}.txt', 'w')
+    file = open(f'../changes/{file_name}.txt', 'w')
     file.write(content)
     print("Modifications written to file")
     file.close()
