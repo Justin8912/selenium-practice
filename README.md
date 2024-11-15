@@ -12,14 +12,17 @@ the important nature of this work, there are a couple of guidelines that need to
 
 Running tests
 --
-There is a test `my-app` react app that is being used to render what the basic display looks like on Robin's side. 
+There is a test react app (`test-react-app`) that is being used to render what the basic display looks like on Robin's side. 
 
 In order to test the selenium app, you must follow these steps:
 1. Open one terminal to run the react app and wait until it is fully loaded
 2. Open another terminal to run the selenium script
 
-After running the test a directory should populate called `changes-made` with the time that the file was run 
+After running the test a directory should populate called `changes` with the time that the file was run 
 as the name of the file. This will hold all the record for everything that was changed.
+
+This is mostly just a POC just to make sure I can get this selenium bot running. The general structure of the script 
+for the test and for the actual script will look very similar.
 
 Running the bot
 --

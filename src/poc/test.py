@@ -24,20 +24,17 @@ if seat_number == "":
     while seat_number == "":
         print("Seat number cannot be set to nothing. Please try entering a valid number.")
         seat_number = input(msg)
-
 if link == "":
     msg = "Where should the bot be run? "
     link = input(msg)
     while link == "":
         print("Link cannot be set to nothing. Please try entering a valid link.")
         link = input(msg)
-
 if not excluded_times:
     msg = "Please list out the times of sections that should be excluded (separated by comma): "
     excluded_times = list(map(lambda x: x.strip() if x != '' else None, input(msg).split(",")))
     excluded_times = [x for x in excluded_times if x is not None]
     print(f'Here are the excluded times {excluded_times}')
-
 if not excluded_sections:
     msg = "If there are any, list out any unique numbers you'd like to exclude (separated by comma): "
     excluded_sections = list(map(lambda x: x.strip() if x != '' else None, input(msg).split(",")))
@@ -47,13 +44,14 @@ if not excluded_sections:
 
 def get_unique_numbers(driver):
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
+
     rows = driver.find_elements(By.TAG_NAME, "tr")
     return rows
 
 
 def write_to_file(content):
     file_name = "-".join(str(datetime.now()).split(" "))
-    file = open(f'../../changes/{file_name}-test.txt', 'w')
+    file = open(f'../../changes-made/{file_name}-test.txt', 'w')
     file.write(content)
     print("Modifications written to file")
     file.close()
