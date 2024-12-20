@@ -181,7 +181,7 @@ def interact_with_live_env():
             continue
         # TODO: Update References
         curr_unique_num = unique_num.text
-        curr_time = curr_row[2].text
+        curr_time = curr_row[1].text
 
         print(f'Modifying the current section: {curr_unique_num} {curr_time}')
         # Note that this method is currently disregarding the day and only looking at the time
