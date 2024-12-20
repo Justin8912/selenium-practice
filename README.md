@@ -1,3 +1,7 @@
+<div align='center'>
+   <img src="https://github.com/user-attachments/assets/503eb767-1bc2-49b0-a223-ca38ad5ec4b4"/>
+</div>
+
 Selenium Practice
 --
 The purpose of this repo is to test out selenium for use in automating a small but tedious part of Robin's job. 
