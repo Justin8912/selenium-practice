@@ -8,7 +8,7 @@ const SizeChanger = (props) => {
         <>
         {
             currentDisplay === "display" ?
-            <div className='totalSeats'>
+            <div id='totalSeats'>
                 <button onClick={()=>{setCurrentDisplay("edit")}}>Edit</button>
             </div>
             :

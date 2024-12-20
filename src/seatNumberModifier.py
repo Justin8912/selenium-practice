@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
-import time
 
 # Setting variables for use
 seat_number = ""
@@ -16,7 +15,7 @@ excluded_sections = [
     # "49500"
 ]
 
-link = "" # This will need to be updated with whatever link we need to use
+link = "http://localhost:3000" # This will need to be updated with whatever link we need to use
 
 # Asking for user input if the above variables do not exist
 if seat_number == "":
@@ -92,10 +91,7 @@ def interact_with_test_env():
             element_idx += 1
             continue
         unique_num = flowchart[element_idx].find_element(By.TAG_NAME, 'a')
-        # TODO: Update References
-        # curr_unique_num = curr_row[0].text
         curr_unique_num = unique_num.text
-        print("Here is the current unique number: " + curr_unique_num)
         curr_time = curr_row[1].text
 
         # Note that this method is currently disregarding the day and only looking at the time
@@ -121,8 +117,11 @@ def interact_with_test_env():
 
             # Wait for the new page to show up, may need more time here
             # TODO: Update setSeatNumber reference, text_input, and submit_button
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "setSeatNumber")))
-            text_input = driver.find_element(By.ID, "setSeatNumber")
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "totalSeats")))
+            edit_button = driver.find_element(By.ID, "totalSeats").find_element(By.TAG_NAME, "button")
+            edit_button.click()
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "totalSeatsForm")))
+            text_input = driver.find_element(By.ID, "seatsInput")
             submit_button = driver.find_element(By.TAG_NAME, "button")
             text_input.clear()
             text_input.send_keys(seat_number)
@@ -166,7 +165,6 @@ def interact_with_live_env():
     '''
     while number_of_elements != element_idx:
         valid = True
-        # TODO: May need to update this reference
         curr_row = flowchart[element_idx].find_elements(By.TAG_NAME, 'td')
         if (len(curr_row) == 0):
             print("Skipping the header row")
@@ -179,12 +177,11 @@ def interact_with_live_env():
             print("Element with Tag name a not found; this must not be a correct row.")
             element_idx += 1
             continue
-        # TODO: Update References
         curr_unique_num = unique_num.text
         curr_time = curr_row[1].text
 
         print(f'Modifying the current section: {curr_unique_num} {curr_time}')
-        # Note that this method is currently disregarding the day and only looking at the time
+
         for time in excluded_times:
             if time.lower() in curr_time.lower():
                 modifications += f'\n\t{curr_unique_num} : Excluded - section time {curr_time}'
@@ -205,18 +202,15 @@ def interact_with_live_env():
             #  Navigate to new page
             unique_num.click()
 
-            # Wait for the new page to show up, may need more time here
-            # TODO: Update setSeatNumber reference, text_input, and submit_button
+            # Wait for the new page to show up
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "totalSeats")))
             interact_with_specific_unique_number(driver)
-            # text_input = driver.find_element(By.ID, "setSeatNumber")
             
             modifications += f'\n\t{curr_unique_num} : Modified - number of seats changed to {seat_number}'
             driver.back()
             driver.back()
             # Move onto the next element
             element_idx += 1
-            # TODO: Update wait statements
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "tr")))
             flowchart = get_unique_numbers(driver)
@@ -247,8 +241,8 @@ def interact_with_specific_unique_number(driver):
 
 
 def main():
-    # interact_with_test_env()
-    interact_with_live_env()
+    interact_with_test_env()
+    # interact_with_live_env()
 
 
 main()
