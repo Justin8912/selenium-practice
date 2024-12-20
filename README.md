@@ -1,5 +1,5 @@
 <div align='center'>
-   <img src="https://github.com/user-attachments/assets/503eb767-1bc2-49b0-a223-ca38ad5ec4b4"/>
+   <img src="https://github.com/user-attachments/assets/503eb767-1bc2-49b0-a223-ca38ad5ec4b4" height="200px"/>
 </div>
 
 Selenium Practice
@@ -38,3 +38,9 @@ When you are running the bot you have a couple of options for excluding sections
     * You can enter one or multiple unique numbers to exclude
 
 The bot runs on Chrome so you will need to have an active sessions for your application in chrome in order for this to run correctly.
+
+Current State
+--
+Currently the test app will not work with the live environment. This is mainly because I am controlling the display based on state as opposed to routing to new tabs like the ut website does. Since the script is currently working on the UT website, I dont see a reason to over engineer the test app and implement routing. I'll just leave it as is and leave the testing method in case I want to mess around with commands. 
+
+Additionally, there is no _good_ way that I found to bypass MFA, so for now I have added inputs that will wait for user input to tell the script to continue.
