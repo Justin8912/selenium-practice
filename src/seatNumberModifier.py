@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
+import time
 
 # Setting variables for use
 seat_number = ""
@@ -12,12 +13,12 @@ excluded_times = [
 ]
 
 excluded_sections = [
-    # "41365"
+    # "49500"
 ]
 
 link = "" # This will need to be updated with whatever link we need to use
 
-# Asking for user input if those variables dont exist
+# Asking for user input if the above variables do not exist
 if seat_number == "":
     msg = "What is the desired number of seats: "
     seat_number = input(msg)
@@ -54,7 +55,6 @@ def get_unique_numbers(driver):
 
 
 def write_to_file(content):
-
     file_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
     print(f'Writing files to {file_name}')
     file = open(f'../changes/{file_name}.txt', 'w')
@@ -86,9 +86,16 @@ def interact_with_test_env():
         valid = True
         # TODO: May need to update this reference
         curr_row = flowchart[element_idx].find_elements(By.TAG_NAME, 'td')
-
+        if (len(curr_row) == 0):
+            # This row is the first row and should be skipped
+            print("Skipping the first row")
+            element_idx += 1
+            continue
+        unique_num = flowchart[element_idx].find_element(By.TAG_NAME, 'a')
         # TODO: Update References
-        curr_unique_num = curr_row[0].text
+        # curr_unique_num = curr_row[0].text
+        curr_unique_num = unique_num.text
+        print("Here is the current unique number: " + curr_unique_num)
         curr_time = curr_row[1].text
 
         # Note that this method is currently disregarding the day and only looking at the time
@@ -110,7 +117,7 @@ def interact_with_test_env():
 
         if valid:
             #  Navigate to new page
-            curr_row[0].click()
+            unique_num.click()
 
             # Wait for the new page to show up, may need more time here
             # TODO: Update setSeatNumber reference, text_input, and submit_button
@@ -138,9 +145,110 @@ def interact_with_test_env():
     write_to_file(modifications)
     driver.quit()
 
+def interact_with_live_env():
+    print("Initializing web driver")
+    driver = webdriver.Chrome()
+    print("Web driver initialized, opening chrome")
+    driver.get(link)
+    input("Enter any key once you have finished logging in")
+    flowchart = get_unique_numbers(driver)
+
+    number_of_elements = len(flowchart)
+    element_idx = 0
+
+    modifications = 'Beep Boop Boop Bop\n\nHere are all the unique numbers iterated on:'
+
+    '''
+    Previously I was running a for loop over the elements that I had in this flowChart list 
+    but when I did that I kept getting the staleElementError. I am not 100% sure why this was 
+    happening, because even though I was running the for loop I was refreshing the flowchart 
+    elements after each iteration.  
+    '''
+    while number_of_elements != element_idx:
+        valid = True
+        # TODO: May need to update this reference
+        curr_row = flowchart[element_idx].find_elements(By.TAG_NAME, 'td')
+        if (len(curr_row) == 0):
+            print("Skipping the header row")
+            element_idx += 1
+            continue
+
+        try:
+            unique_num = flowchart[element_idx].find_element(By.TAG_NAME, 'a')
+        except:
+            print("Element with Tag name a not found; this must not be a correct row.")
+            element_idx += 1
+            continue
+        # TODO: Update References
+        curr_unique_num = unique_num.text
+        curr_time = curr_row[2].text
+
+        print(f'Modifying the current section: {curr_unique_num} {curr_time}')
+        # Note that this method is currently disregarding the day and only looking at the time
+        for time in excluded_times:
+            if time.lower() in curr_time.lower():
+                modifications += f'\n\t{curr_unique_num} : Excluded - section time {curr_time}'
+                valid = False
+                element_idx += 1
+                break
+
+        if curr_unique_num in excluded_sections:
+            valid = False
+            modifications += f'\n\t{curr_unique_num} : Excluded - unique number {curr_unique_num}'
+            element_idx += 1
+
+        if "Section" in curr_unique_num:
+            valid = False
+            element_idx += 1
+
+        if valid:
+            #  Navigate to new page
+            unique_num.click()
+
+            # Wait for the new page to show up, may need more time here
+            # TODO: Update setSeatNumber reference, text_input, and submit_button
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "totalSeats")))
+            interact_with_specific_unique_number(driver)
+            # text_input = driver.find_element(By.ID, "setSeatNumber")
+            
+            modifications += f'\n\t{curr_unique_num} : Modified - number of seats changed to {seat_number}'
+            driver.back()
+            driver.back()
+            # Move onto the next element
+            element_idx += 1
+            # TODO: Update wait statements
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "tr")))
+            flowchart = get_unique_numbers(driver)
+
+    modifications += f'\n\nThe bot ran with the following parameters:\
+    \n\t-> Excluded times: {excluded_times}\
+    \n\t-> Excluded sections: {excluded_sections}'
+    print(modifications)
+
+    write_to_file(modifications)
+    driver.quit()
+
+
+def interact_with_specific_unique_number(driver):
+    seat_limit_div = driver.find_element(By.ID, "totalSeats")
+    edit_btn = seat_limit_div.find_element(By.TAG_NAME, "button")
+    edit_btn.click()
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "totalSeatsForm")))
+
+    seat_form = driver.find_element(By.ID, "totalSeatsForm")
+    text_input = seat_form.find_element(By.ID, "seatsInput")
+    submit_button = seat_form.find_element(By.CLASS_NAME, "seats-btn")
+    
+    text_input.clear()
+    text_input.send_keys(seat_number)
+    submit_button.click()
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "totalSeats")))
+
 
 def main():
-    interact_with_test_env()
+    # interact_with_test_env()
+    interact_with_live_env()
 
 
 main()
